@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prueba Simple</title>
+</head>
+<body>
+    <h1>Generar Presupuesto</h1>
+    
+    <input type="text" id="descripcion" placeholder="Descripción" value="tapizar asientos">
+    <input type="file" id="foto" accept="image/*">
+    <button onclick="generar()">Generar</button>
+    
+    <div id="resultado"></div>
+
+    <script>
+        async function generar() {
+            const descripcion = document.getElementById('descripcion').value;
+            const archivo = document.getElementById('foto').files[0];
+            
+            if (!archivo) {
+                document.getElementById('resultado').innerHTML = '❌ Selecciona una foto';
+                return;
+            }
+            
+            document.getElementById('resultado').innerHTML = '⏳ Procesando...';
+            
+            // Convertir foto a base64
+            const reader = new FileReader();
+            reader.onloadend = async function() {
+                const fotoBase64 = reader.result;
+                
+                try {
+                    const response = await fetch('http://localhost:3000/presupuesto', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            tipo: 'Center Console',
+                            marca: 'Boston Whaler',
+                            descripcion: descripcion,
+                            fotos: [fotoBase64]
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    document.getElementById('resultado').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } catch (error) {
+                    document.getElementById('resultado').innerHTML = '❌ Error: ' + error.message;
+                }
+            };
+            reader.readAsDataURL(archivo);
+        }
+    </script>
+</body>
+</html>
