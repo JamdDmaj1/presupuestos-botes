@@ -215,7 +215,14 @@
         const resultadoDiv = document.getElementById('resultado');
         resultadoDiv.style.display = 'block';
         resultadoDiv.innerHTML = '<div class="cargando">⏳ Analizando fotos con IA... 5-10 segundos.</div>';
+<<<<<<< HEAD
 
+=======
+        
+        // ⚠️ CAMBIA ESTA URL CUANDO TENGAS RENDER
+        const API_URL = 'https://presupuestos-botes-api.onrender.com/presupuesto';
+        
+>>>>>>> eea1d7133ac23cfb8c67d35c515f34ecb060b3aa
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
