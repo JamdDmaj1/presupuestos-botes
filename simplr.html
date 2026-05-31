@@ -1,53 +1,68 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Prueba Simple</title>
+    <title>Prueba Visión</title>
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 </head>
 <body>
     <h1>Generar Presupuesto</h1>
-    
-    <input type="text" id="descripcion" placeholder="Descripción" value="tapizar asientos">
-    <input type="file" id="foto" accept="image/*">
+    <input type="text" id="descripcion" placeholder="Descripción" value="tapizar asientos" style="width: 100%;">
+    <br><br>
+    <input type="file" id="foto" accept="image/*, .heic">
+    <br><br>
     <button onclick="generar()">Generar</button>
-    
-    <div id="resultado"></div>
+    <div id="resultado" style="margin-top: 20px;"></div>
 
     <script>
         async function generar() {
+            const fileInput = document.getElementById('foto');
             const descripcion = document.getElementById('descripcion').value;
-            const archivo = document.getElementById('foto').files[0];
-            
-            if (!archivo) {
-                document.getElementById('resultado').innerHTML = '❌ Selecciona una foto';
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Selecciona una foto');
                 return;
             }
-            
-            document.getElementById('resultado').innerHTML = '⏳ Procesando...';
-            
-            // Convertir foto a base64
-            const reader = new FileReader();
-            reader.onloadend = async function() {
-                const fotoBase64 = reader.result;
-                
-                try {
-                    const response = await fetch('http://localhost:3000/presupuesto', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            tipo: 'Center Console',
-                            marca: 'Boston Whaler',
-                            descripcion: descripcion,
-                            fotos: [fotoBase64]
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    document.getElementById('resultado').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
-                } catch (error) {
-                    document.getElementById('resultado').innerHTML = '❌ Error: ' + error.message;
+
+            const resultadoDiv = document.getElementById('resultado');
+            resultadoDiv.innerHTML = '⏳ Procesando...';
+
+            try {
+                let imageBlob = file;
+                // Convertir HEIC a JPEG
+                if (file.name.toLowerCase().endsWith('.heic')) {
+                    resultadoDiv.innerHTML = '⏳ Convirtiendo HEIC...';
+                    imageBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.9 });
                 }
-            };
-            reader.readAsDataURL(archivo);
+
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64 = reader.result;
+                    resultadoDiv.innerHTML = '⏳ Enviando al servidor...';
+                    try {
+                        const response = await fetch('http://localhost:3000/presupuesto', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                tipo: 'Center Console',
+                                marca: 'Boston Whaler',
+                                descripcion: descripcion,
+                                fotos: [base64]
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.error) {
+                            resultadoDiv.innerHTML = '❌ Error: ' + data.error;
+                        } else {
+                            resultadoDiv.innerHTML = '<pre style="white-space:pre-wrap;">' + data.presupuesto + '</pre>';
+                        }
+                    } catch (err) {
+                        resultadoDiv.innerHTML = '❌ Error de conexión: ' + err.message;
+                    }
+                };
+                reader.readAsDataURL(imageBlob);
+            } catch (err) {
+                resultadoDiv.innerHTML = '❌ Error al convertir HEIC: ' + err.message;
+            }
         }
     </script>
 </body>

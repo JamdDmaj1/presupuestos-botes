@@ -4,7 +4,7 @@ const OpenAI = require('openai');
 const app = express();
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 if (!OPENROUTER_API_KEY) {
@@ -19,51 +19,59 @@ const openai = new OpenAI({
 
 app.post('/presupuesto', async (req, res) => {
     try {
-        const { tipo, marca, tamano, ubicacion, descripcion, nombreCliente } = req.body;
+        const { tipo, marca, tamano, ubicacion, descripcion, fotos, nombreCliente } = req.body;
 
-        const prompt = `Eres un experto en tapicería marina en Miami, Florida.
-Genera un presupuesto REALISTA en español:
+        console.log(`📸 Recibidas ${fotos ? fotos.length : 0} fotos`);
+        
+        if (!fotos || fotos.length === 0) {
+            return res.status(400).json({ error: "Debes subir al menos una foto" });
+        }
 
-DATOS DEL CLIENTE:
-- Tipo de embarcación: ${tipo}
-- Marca: ${marca || "No especificada"}
-- Tamaño: ${tamano || "No especificado"}
-- Ubicación: ${ubicacion || "Miami, FL"}
-- Cliente: ${nombreCliente || "Cliente"}
-- Descripción del trabajo: ${descripcion}
+        // Validar formato base64
+        for (let i = 0; i < fotos.length; i++) {
+            if (typeof fotos[i] !== 'string' || !fotos[i].startsWith('data:image')) {
+                return res.status(400).json({ error: `La foto ${i+1} no tiene formato base64 válido (debe comenzar con 'data:image')` });
+            }
+        }
 
-RESPONDE EXACTAMENTE EN ESTE FORMATO:
-
-🔧 TRABAJO REQUERIDO:
-(resumen del trabajo)
-
-💰 COSTO ESTIMADO: $ (número entre 150 y 2500 USD)
-
+        const contenido = [
+            {
+                type: "text",
+                text: `Analiza estas fotos de tapicería marina. Da un presupuesto realista en español.
+Tipo: ${tipo}
+Marca: ${marca || "N/E"}
+Descripción: ${descripcion}
+Responde con:
+🔍 LO QUE VEO:
+💰 COSTO ESTIMADO: $
 📋 INCLUYE:
-• Materiales
-• Mano de obra
+⏱ TIEMPO:
+💡 RECOMENDACIÓN:`
+            }
+        ];
 
-⏱ TIEMPO DE ENTREGA:
-(días)
+        for (const foto of fotos) {
+            contenido.push({
+                type: "image_url",
+                image_url: { url: foto }
+            });
+        }
 
-💡 RECOMENDACIÓN:
-(un consejo profesional)
-
-⚠️ IMPORTANTE: Este es un estimado. El precio final puede variar.`;
-
+        console.log('📤 Enviando a OpenRouter...');
         const completion = await openai.chat.completions.create({
-            model: "openai/gpt-3.5-turbo",
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.7,
+            model: "openai/gpt-4o-mini",
+            messages: [{ role: "user", content: contenido }],
+            max_tokens: 1000,
         });
 
-        const texto = completion.choices[0].message.content;
-        res.json({ presupuesto: texto });
+        console.log('✅ Respuesta recibida');
+        res.json({ presupuesto: completion.choices[0].message.content });
+        
     } catch (error) {
-        console.error(error);
+        console.error('❌ Error:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Servidor en puerto ${PORT}`));
