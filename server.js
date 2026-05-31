@@ -7,8 +7,10 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+console.log('🔑 API Key recibida:', OPENROUTER_API_KEY ? '✅ Presente' : '❌ FALTA');
+
 if (!OPENROUTER_API_KEY) {
-    console.error('❌ ERROR: Falta OPENROUTER_API_KEY');
+    console.error('❌ ERROR CRÍTICO: Falta OPENROUTER_API_KEY en variables de entorno');
     process.exit(1);
 }
 
@@ -20,18 +22,11 @@ const openai = new OpenAI({
 app.post('/presupuesto', async (req, res) => {
     try {
         const { tipo, marca, tamano, ubicacion, descripcion, fotos, nombreCliente } = req.body;
-
+        
         console.log(`📸 Recibidas ${fotos ? fotos.length : 0} fotos`);
         
         if (!fotos || fotos.length === 0) {
             return res.status(400).json({ error: "Debes subir al menos una foto" });
-        }
-
-        // Validar formato base64
-        for (let i = 0; i < fotos.length; i++) {
-            if (typeof fotos[i] !== 'string' || !fotos[i].startsWith('data:image')) {
-                return res.status(400).json({ error: `La foto ${i+1} no tiene formato base64 válido (debe comenzar con 'data:image')` });
-            }
         }
 
         const contenido = [
@@ -68,10 +63,13 @@ Responde con:
         res.json({ presupuesto: completion.choices[0].message.content });
         
     } catch (error) {
-        console.error('❌ Error:', error.message);
+        console.error('❌ Error detallado:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor en puerto ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+    console.log(`🔑 OPENROUTER_API_KEY: ${OPENROUTER_API_KEY ? '✅ Configurada' : '❌ No configurada'}`);
+});
