@@ -7,7 +7,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
     <style>
-        /* ========== ESTILOS (resumidos pero completos) ========== */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #0b3d5f 0%, #1a6d8f 100%); min-height: 100vh; padding: 20px; }
         .container { max-width: 950px; margin: 0 auto; background: white; border-radius: 25px; padding: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
@@ -39,6 +38,9 @@
         .historial-item:hover { background: #e9ecef; }
         .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #888; }
         .disclaimer-footer { background: #f8d7da; color: #721c24; padding: 12px; border-radius: 12px; margin-top: 15px; font-size: 11px; }
+        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(0,0,0,0.1); border-radius: 50%; border-top-color: #1a6d8f; animation: spin 1s ease-in-out infinite; margin-left: 10px; vertical-align: middle; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .cargando { text-align: center; padding: 20px; color: #1a6d8f; }
         @media (max-width: 600px) { .row-2 { flex-direction: column; gap: 0; } .flex-btns { flex-direction: column; } }
     </style>
 </head>
@@ -54,25 +56,65 @@
         <button class="tab-btn" onclick="cambiarTab('contacto')">📞 Contacto & Redes</button>
     </div>
 
+    <!-- ========== TAB 1: PRESUPUESTO ========== -->
     <div id="tab-presupuesto" class="tab-content active">
         <p>Completa los datos y sube fotos de la tapicería. La IA analizará el daño y te dará un presupuesto realista.</p>
         <form id="formPresupuesto">
             <label>📌 1. Tipo de embarcación:</label>
             <select id="tipo" required>
                 <option value="">-- Selecciona --</option>
-                <optgroup label="🚤 Pesca"><option value="Center Console">Center Console</option><option value="Bay Boat">Bay Boat</option><option value="Offshore">Offshore</option></optgroup>
-                <optgroup label="🛥️ Yates"><option value="Yate">Yate (40-60 pies)</option><option value="Super Yate">Super Yate (60+ pies)</option><option value="Crucero">Crucero de día</option></optgroup>
-                <optgroup label="🇲🇽 Mexicanas"><option value="Hielo 15">Hielo 15</option><option value="Hielo 18">Hielo 18</option><option value="Hielo 21">Hielo 21</option><option value="Nortec 15">Nortec 15</option><option value="Nortec 17">Nortec 17</option><option value="Nortec 19">Nortec 19</option><option value="Nortec 21">Nortec 21</option></optgroup>
-                <optgroup label="🏄 Otros"><option value="Ponton">Pontón</option><option value="Jet Ski">Jet Ski</option><option value="Otro">Otro</option></optgroup>
+                <optgroup label="🚤 Pesca">
+                    <option value="Center Console">Center Console</option>
+                    <option value="Bay Boat">Bay Boat</option>
+                    <option value="Offshore">Offshore</option>
+                </optgroup>
+                <optgroup label="🛥️ Yates">
+                    <option value="Yate">Yate (40-60 pies)</option>
+                    <option value="Super Yate">Super Yate (60+ pies)</option>
+                    <option value="Crucero">Crucero de día</option>
+                </optgroup>
+                <optgroup label="🇲🇽 Mexicanas">
+                    <option value="Hielo 15">Hielo 15</option>
+                    <option value="Hielo 18">Hielo 18</option>
+                    <option value="Hielo 21">Hielo 21</option>
+                    <option value="Nortec 15">Nortec 15</option>
+                    <option value="Nortec 17">Nortec 17</option>
+                    <option value="Nortec 19">Nortec 19</option>
+                    <option value="Nortec 21">Nortec 21</option>
+                </optgroup>
+                <optgroup label="🏄 Otros">
+                    <option value="Ponton">Pontón</option>
+                    <option value="Jet Ski">Jet Ski</option>
+                    <option value="Otro">Otro</option>
+                </optgroup>
             </select>
             <div id="otroDiv" style="display:none;"><label>✏️ Especifica:</label><input type="text" id="otroTexto"></div>
 
             <label>🏷️ 2. Marca:</label>
             <select id="marca">
                 <option value="">-- Selecciona --</option>
-                <optgroup label="Americanas"><option value="Boston Whaler">Boston Whaler</option><option value="Sea Ray">Sea Ray</option><option value="Grady-White">Grady-White</option><option value="Key West">Key West</option><option value="Scout">Scout</option><option value="Yellowfin">Yellowfin</option><option value="Contender">Contender</option><option value="Intrepid">Intrepid</option></optgroup>
-                <optgroup label="Mexicanas"><option value="Hielo">Hielo</option><option value="Nortec">Nortec</option><option value="Azteca">Azteca</option><option value="Kavak">Kavak</option></optgroup>
-                <optgroup label="Europeas"><option value="Azimut">Azimut</option><option value="Ferretti">Ferretti</option><option value="Sunseeker">Sunseeker</option><option value="Beneteau">Beneteau</option></optgroup>
+                <optgroup label="Americanas">
+                    <option value="Boston Whaler">Boston Whaler</option>
+                    <option value="Sea Ray">Sea Ray</option>
+                    <option value="Grady-White">Grady-White</option>
+                    <option value="Key West">Key West</option>
+                    <option value="Scout">Scout</option>
+                    <option value="Yellowfin">Yellowfin</option>
+                    <option value="Contender">Contender</option>
+                    <option value="Intrepid">Intrepid</option>
+                </optgroup>
+                <optgroup label="Mexicanas">
+                    <option value="Hielo">Hielo</option>
+                    <option value="Nortec">Nortec</option>
+                    <option value="Azteca">Azteca</option>
+                    <option value="Kavak">Kavak</option>
+                </optgroup>
+                <optgroup label="Europeas">
+                    <option value="Azimut">Azimut</option>
+                    <option value="Ferretti">Ferretti</option>
+                    <option value="Sunseeker">Sunseeker</option>
+                    <option value="Beneteau">Beneteau</option>
+                </optgroup>
                 <option value="Otra">Otra</option>
             </select>
             <div id="otroMarcaDiv" style="display:none;"><label>✏️ Especifica:</label><input type="text" id="otroMarcaTexto"></div>
@@ -90,12 +132,14 @@
             <div class="fotos-area" onclick="document.getElementById('fotosInput').click()">📁 Haz clic para subir fotos</div>
             <input type="file" id="fotosInput" multiple accept="image/*" style="display:none">
             <div id="previewFotos"></div>
+            <div id="cargaPreviewMsg" style="font-size:12px; color:#1a6d8f; margin-top:5px; min-height: 24px;"></div>
 
             <button type="button" id="botonGenerar">🔮 Generar presupuesto con IA</button>
         </form>
         <div id="resultado" class="resultado-card"></div>
     </div>
 
+    <!-- ========== TAB 2: HISTORIAL ========== -->
     <div id="tab-historial" class="tab-content">
         <h3>📋 Historial de presupuestos generados</h3>
         <p style="margin-bottom: 15px;">Haz clic en cualquier presupuesto para verlo completo y generar factura.</p>
@@ -103,6 +147,7 @@
         <button id="btnBorrarHistorial" style="background:#dc3545; margin-top: 15px;">🗑️ Borrar todo el historial</button>
     </div>
 
+    <!-- ========== TAB 3: CONTACTO ========== -->
     <div id="tab-contacto" class="tab-content">
         <h3>📞 ¿Necesitas ayuda?</h3>
         <div class="contacto-botones">
@@ -124,25 +169,150 @@
     <div class="footer">Marine Budget AI Pro © 2025 - Presupuestos con Inteligencia Artificial para embarcaciones</div>
 </div>
 
-<!-- ========== SCRIPT AL FINAL DEL BODY (TODO EN UN SOLO LUGAR) ========== -->
 <script>
-    // Configuración
-    const API_URL = 'https://presupuestos-botes-api.onrender.com/presupuesto';
-    const API_URL = 'http://localhost:3000/presupuesto';
+    // ========== CONFIGURACIÓN ==========
+    const API_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:3000/presupuesto'
+        : 'https://presupuestos-botes-api.onrender.com/presupuesto';
     const NUMERO_WHATSAPP = '17865551234';
     const INSTAGRAM = 'https://instagram.com/tuempresa';
     const FACEBOOK = 'https://facebook.com/tuempresa';
     const TIKTOK = 'https://tiktok.com/@tuempresa';
 
-    // Historial
+    // ========== HISTORIAL (funciones completas) ==========
     let historial = JSON.parse(localStorage.getItem('presupuestos_historial') || '[]');
-    function guardarHistorial() { localStorage.setItem('presupuestos_historial', JSON.stringify(historial)); actualizarListaHistorial(); }
-    function agregarAlHistorial(datos) { /* ... */ }
-    function actualizarListaHistorial() { /* ... */ }
-    function verPresupuestoHistorial(id) { /* ... */ }
-    function descargarFactura(id) { /* ... */ }
-    function descargarFacturaActual(texto, tipo, marca, cliente) { /* ... */ }
-    function cambiarTab(tab) { /* ... */ }
+
+    function guardarHistorial() {
+        localStorage.setItem('presupuestos_historial', JSON.stringify(historial));
+        actualizarListaHistorial();
+    }
+
+    function agregarAlHistorial(datos) {
+        const nuevo = {
+            id: Date.now(),
+            fecha: new Date().toLocaleString(),
+            cliente: document.getElementById('nombreCliente').value || 'Cliente anónimo',
+            tipo: datos.tipo,
+            marca: datos.marca,
+            presupuestoTexto: datos.presupuestoTexto,
+            costoExtraido: datos.costoExtraido
+        };
+        historial.unshift(nuevo);
+        if (historial.length > 20) historial.pop();
+        guardarHistorial();
+    }
+
+    function actualizarListaHistorial() {
+        const contenedor = document.getElementById('listaHistorial');
+        if (!contenedor) return;
+        if (historial.length === 0) {
+            contenedor.innerHTML = '<p style="color:#888;">No hay presupuestos guardados aún. Genera uno nuevo.</p>';
+            return;
+        }
+        contenedor.innerHTML = historial.map(item => `
+            <div class="historial-item" onclick="verPresupuestoHistorial(${item.id})">
+                <strong>📅 ${item.fecha}</strong><br>
+                👤 ${item.cliente} | ⚓ ${item.tipo} ${item.marca ? `(${item.marca})` : ''}<br>
+                💰 ${item.costoExtraido || 'Ver presupuesto'}
+            </div>
+        `).join('');
+    }
+
+    function verPresupuestoHistorial(id) {
+        const item = historial.find(h => h.id === id);
+        if (item) {
+            document.getElementById('resultado').style.display = 'block';
+            document.getElementById('resultado').innerHTML = `
+                <h3>📜 Presupuesto del ${item.fecha}</h3>
+                <div style="white-space:pre-wrap; background:white; padding:15px; border-radius:12px; margin:15px 0;">${item.presupuestoTexto}</div>
+                <div class="flex-btns">
+                    <button onclick="descargarFactura('${item.id}')" class="btn-pdf" style="background:#dc3545;">📄 Descargar Factura (PDF)</button>
+                    <a href="https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent('Hola, vi mi presupuesto anterior: ' + item.presupuestoTexto)}" class="btn-whatsapp" style="display:inline-block; text-align:center; text-decoration:none; color:white; padding:12px; border-radius:40px; background:#25D366;">📲 Enviar por WhatsApp</a>
+                </div>
+                <div class="disclaimer-footer">⚠️ <strong>DISCLAIMER:</strong> Este presupuesto fue generado por IA en ${item.fecha}. Los precios pueden haber cambiado. Solicita un nuevo presupuesto actualizado para precios vigentes.</div>
+                <button onclick="document.getElementById('resultado').style.display='none'" style="margin-top:10px; background:#666;">Cerrar</button>
+            `;
+            cambiarTab('presupuesto');
+        }
+    }
+
+    function descargarFactura(id) {
+        const item = historial.find(h => h.id == id);
+        if (!item) return;
+        const facturaHTML = `
+            <div style="padding:30px; font-family:Arial; max-width:800px; margin:auto;">
+                <h1 style="color:#0b3d5f;">MARINE BUDGET AI</h1>
+                <h2>PRESUPUESTO ESTIMADO / ESTIMATE</h2>
+                <hr>
+                <p><strong>Fecha:</strong> ${item.fecha}</p>
+                <p><strong>Cliente:</strong> ${item.cliente}</p>
+                <p><strong>Tipo de bote:</strong> ${item.tipo} ${item.marca ? `(${item.marca})` : ''}</p>
+                <hr>
+                <h3>Detalle del presupuesto:</h3>
+                <div style="white-space:pre-wrap;">${item.presupuestoTexto}</div>
+                <hr>
+                <div style="background:#f8d7da; padding:15px; border-radius:8px; margin-top:20px; font-size:11px; color:#721c24;">
+                    <strong>⚠️ NOTA LEGAL IMPORTANTE:</strong><br><br>
+                    1. Este documento es un <strong>PRESUPUESTO ESTIMADO</strong> generado por inteligencia artificial, no una cotización vinculante.<br><br>
+                    2. El precio final se determinará después de una <strong>inspección física del bote</strong> por un técnico calificado.<br><br>
+                    3. Los precios pueden variar según el estado real de la tapicería, disponibilidad de materiales y mano de obra al momento del servicio.<br><br>
+                    4. Para proceder con el trabajo, se requiere un <strong>presupuesto oficial firmado</strong> por ambas partes.<br><br>
+                    5. Marine Budget AI actúa solo como generador de estimados iniciales. El servicio final será provisto por un tapicero marino certificado.<br><br>
+                    <strong>Para confirmar tu servicio, contáctanos directamente.</strong>
+                </div>
+                <hr>
+                <p><strong>Marine Budget AI - Miami, FL</strong></p>
+                <p>Tel: ${NUMERO_WHATSAPP} | info@marinebudgetai.com</p>
+                <p><em>Documento generado automáticamente - Sin valor legal sin firma</em></p>
+            </div>
+        `;
+        const element = document.createElement('div');
+        element.innerHTML = facturaHTML;
+        document.body.appendChild(element);
+        html2pdf().from(element).set({ filename: `Factura_${item.id}.pdf` }).save();
+        document.body.removeChild(element);
+    }
+
+    function descargarFacturaActual(texto, tipo, marca, cliente) {
+        const facturaHTML = `
+            <div style="padding:30px; font-family:Arial; max-width:800px; margin:auto;">
+                <h1 style="color:#0b3d5f;">MARINE BUDGET AI</h1>
+                <h2>PRESUPUESTO ESTIMADO / ESTIMATE</h2>
+                <hr>
+                <p><strong>Fecha:</strong> ${new Date().toLocaleString()}</p>
+                <p><strong>Cliente:</strong> ${cliente}</p>
+                <p><strong>Tipo de bote:</strong> ${tipo} ${marca ? `(${marca})` : ''}</p>
+                <hr>
+                <h3>Detalle del presupuesto:</h3>
+                <div style="white-space:pre-wrap;">${texto}</div>
+                <hr>
+                <div style="background:#f8d7da; padding:15px; border-radius:8px; margin-top:20px; font-size:11px; color:#721c24;">
+                    <strong>⚠️ NOTA LEGAL IMPORTANTE:</strong><br><br>
+                    1. Este documento es un <strong>PRESUPUESTO ESTIMADO</strong> generado por inteligencia artificial, no una cotización vinculante.<br><br>
+                    2. El precio final se determinará después de una <strong>inspección física del bote</strong> por un técnico calificado.<br><br>
+                    3. Los precios pueden variar según el estado real de la tapicería, disponibilidad de materiales y mano de obra al momento del servicio.<br><br>
+                    4. Para proceder con el trabajo, se requiere un <strong>presupuesto oficial firmado</strong> por ambas partes.<br><br>
+                    <strong>Para confirmar tu servicio, contáctanos directamente.</strong>
+                </div>
+                <hr>
+                <p><strong>Marine Budget AI - Miami, FL</strong></p>
+                <p>Tel: ${NUMERO_WHATSAPP} | info@marinebudgetai.com</p>
+                <p><em>Documento generado automáticamente - Sin valor legal sin firma</em></p>
+            </div>
+        `;
+        const element = document.createElement('div');
+        element.innerHTML = facturaHTML;
+        document.body.appendChild(element);
+        html2pdf().from(element).set({ filename: `Factura_${Date.now()}.pdf` }).save();
+        document.body.removeChild(element);
+    }
+
+    function cambiarTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if (tab === 'historial') actualizarListaHistorial();
+    }
 
     // Mostrar/ocultar campos "Otro"
     document.getElementById('tipo')?.addEventListener('change', () => {
@@ -152,28 +322,15 @@
         document.getElementById('otroMarcaDiv').style.display = document.getElementById('marca').value === 'Otra' ? 'block' : 'none';
     });
 
-    // ========== CONVERSIÓN HEIC y PREVIEW ==========
+    // ========== CONVERSIÓN HEIC CON INDICADOR DE CARGA ==========
     let fotosData = [];
-    function mostrarPreviews(input) {
-        const preview = document.getElementById('previewFotos');
-        preview.innerHTML = '';
-        fotosData = [];
-        Array.from(input.files).slice(0,5).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = e => {
-                fotosData.push(e.target.result);
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'preview-img';
-                preview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-
     const fotosInput = document.getElementById('fotosInput');
+    const cargaMsg = document.getElementById('cargaPreviewMsg');
+
     fotosInput.addEventListener('change', async function(event) {
         const files = Array.from(event.target.files);
+        if (files.length === 0) return;
+        cargaMsg.innerHTML = '⏳ Procesando imágenes... <span class="spinner"></span>';
         const convertedFiles = [];
         for (const file of files) {
             if (file.name.toLowerCase().endsWith('.heic')) {
@@ -190,10 +347,30 @@
                 convertedFiles.push(file);
             }
         }
+        // Reemplazar archivos en el input
         const dataTransfer = new DataTransfer();
         convertedFiles.forEach(f => dataTransfer.items.add(f));
         fotosInput.files = dataTransfer.files;
-        mostrarPreviews(fotosInput);
+        // Generar previews y base64 (esperar a que terminen)
+        const preview = document.getElementById('previewFotos');
+        preview.innerHTML = '';
+        fotosData = [];
+        for (const file of convertedFiles) {
+            const reader = new FileReader();
+            await new Promise((resolve) => {
+                reader.onload = e => {
+                    fotosData.push(e.target.result);
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-img';
+                    preview.appendChild(img);
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        cargaMsg.innerHTML = `✅ ${fotosData.length} imagen(es) lista(s)`;
+        setTimeout(() => { if (cargaMsg.innerHTML.includes('✅')) cargaMsg.innerHTML = ''; }, 3000);
     });
 
     // ========== GENERAR PRESUPUESTO ==========
@@ -212,41 +389,57 @@
 
         const btn = document.getElementById('botonGenerar');
         btn.disabled = true;
-        btn.textContent = '🧠 IA analizando fotos...';
+        btn.innerHTML = '🧠 IA analizando fotos... <span class="spinner"></span>';
         const resultadoDiv = document.getElementById('resultado');
         resultadoDiv.style.display = 'block';
-        resultadoDiv.innerHTML = '<div class="cargando">⏳ Analizando fotos con IA... 5-10 segundos.</div>';
-<<<<<<< HEAD
+        resultadoDiv.innerHTML = '<div class="cargando">⏳ Enviando al servidor...</div>';
 
-=======
-        
-        // ⚠️ CAMBIA ESTA URL CUANDO TENGAS RENDER
-        const API_URL = 'https://presupuestos-botes-api.onrender.com/presupuesto';
-        
->>>>>>> eea1d7133ac23cfb8c67d35c515f34ecb060b3aa
         try {
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tipo, marca, tamano, ubicacion, descripcion, fotos: fotosData.slice(0,3), nombreCliente })
+                body: JSON.stringify({
+                    tipo, marca, tamano, ubicacion, descripcion,
+                    fotos: fotosData.slice(0, 3),
+                    nombreCliente
+                })
             });
             const data = await response.json();
             if (data.error) throw new Error(data.error);
             const presupuestoTexto = data.presupuesto;
-            resultadoDiv.innerHTML = `<pre style="white-space:pre-wrap; background:white; padding:15px; border-radius:12px;">${presupuestoTexto}</pre>
-                <div class="flex-btns"><button onclick="descargarFacturaActual('${presupuestoTexto.replace(/'/g, "\\'")}', '${tipo}', '${marca}', '${nombreCliente}')" class="btn-pdf" style="background:#dc3545;">📄 Descargar Factura (PDF)</button>
-                <a href="https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent('Hola, recibí un presupuesto estimado: ' + presupuestoTexto)}" class="btn-whatsapp" style="display:inline-block; text-align:center; text-decoration:none; color:white; padding:12px; border-radius:40px; background:#25D366;">📲 Enviar por WhatsApp</a></div>
-                <div class="disclaimer-footer">⚠️ <strong>DISCLAIMER LEGAL:</strong> Este presupuesto es SOLO un estimado generado por IA. El precio real puede variar.</div>`;
+            resultadoDiv.innerHTML = `
+                <h3>💰 PRESUPUESTO PARA ${nombreCliente.toUpperCase()}</h3>
+                <pre style="white-space:pre-wrap; background:white; padding:15px; border-radius:12px;">${presupuestoTexto}</pre>
+                <div class="flex-btns">
+                    <button onclick="descargarFacturaActual('${presupuestoTexto.replace(/'/g, "\\'")}', '${tipo}', '${marca}', '${nombreCliente}')" class="btn-pdf" style="background:#dc3545;">📄 Descargar Factura (PDF)</button>
+                    <a href="https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent('Hola, recibí un presupuesto estimado para mi ' + tipo + ': ' + presupuestoTexto)}" class="btn-whatsapp" style="display:inline-block; text-align:center; text-decoration:none; color:white; padding:12px; border-radius:40px; background:#25D366;">📲 Enviar por WhatsApp</a>
+                </div>
+                <div class="disclaimer-footer">⚠️ <strong>DISCLAIMER LEGAL:</strong> Este presupuesto es SOLO un estimado generado por IA. El precio real puede variar según inspección física del bote, disponibilidad de materiales, y mano de obra en el momento del servicio. Marine Budget AI no se hace responsable por diferencias entre este estimado y el precio final acordado. El servicio se confirma solo con presupuesto firmado por ambas partes.</div>
+                <button onclick="document.getElementById('resultado').style.display='none'" style="margin-top:10px; background:#666;">Cerrar</button>
+            `;
             agregarAlHistorial({ tipo, marca, presupuestoTexto, costoExtraido: 'Ver arriba' });
         } catch (error) {
-            resultadoDiv.innerHTML = `<div style="color:red;">❌ ${error.message}</div>`;
+            resultadoDiv.innerHTML = `<div style="color:red;">❌ Error: ${error.message}</div>`;
         } finally {
             btn.disabled = false;
-            btn.textContent = '🔮 Generar presupuesto con IA';
+            btn.innerHTML = '🔮 Generar presupuesto con IA';
         }
     });
 
-    // Asignar funciones a window para que los botones las encuentren
+    document.getElementById('btnBorrarHistorial')?.addEventListener('click', () => {
+        if(confirm('¿Borrar todo el historial?')) {
+            historial = [];
+            guardarHistorial();
+        }
+    });
+    document.getElementById('btnChatRapido')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent('Hola, tengo una duda sobre los presupuestos para mi bote.')}`);
+    });
+    document.getElementById('linkInstagram')?.addEventListener('click', (e) => { e.preventDefault(); window.open(INSTAGRAM); });
+    document.getElementById('linkFacebook')?.addEventListener('click', (e) => { e.preventDefault(); window.open(FACEBOOK); });
+    document.getElementById('linkTikTok')?.addEventListener('click', (e) => { e.preventDefault(); window.open(TIKTOK); });
+
     window.cambiarTab = cambiarTab;
     window.verPresupuestoHistorial = verPresupuestoHistorial;
     window.descargarFactura = descargarFactura;
